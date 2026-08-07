@@ -134,6 +134,7 @@ export default function AddCommentForm({ postId, parentId, userToReply, showForm
             <TouchableOpacity
               onPress={handleCancel}
               style={styles(theme).button}
+              testID='form-cancel-button'
             >
               <Ionicons
                 name='close'

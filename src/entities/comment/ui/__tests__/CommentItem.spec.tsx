@@ -1,15 +1,20 @@
+import { userEvent } from "@testing-library/react-native";
 import { createComment } from "@/shared/test/util/createComment";
 import { CommentItemProps } from "@/entities/comment/model/types";
 import { renderWithProviders } from "@/shared/lib/renderWithProviders";
 import CommentItem from "@/entities/comment/ui/components/CommentItem/CommentItem";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { Vote } from "@/entities/vote/model/vote.types";
 
 const mockUpvote = jest.fn();
 const mockUnvote = jest.fn();
+let mockVotes: { items: Vote[] } = { items: [] }
 
 jest.mock('@/entities/comment-votes/hooks/useGetCommentVotes', () => ({
-  useGetCommentVotes: jest.fn().mockReturnValue({data: { items: [] }}),
+  useGetCommentVotes: jest.fn(() => ({
+    data: mockVotes
+  }))
 }))
 
 jest.mock('@/features/comment-votes/hooks/useCommentVotes', () => ({
@@ -25,8 +30,10 @@ const mockProps: CommentItemProps = {
 }
 
 describe('CommentItem component', () => {
-  beforeEach(() => jest.clearAllMocks());
+  const user = userEvent.setup()
   dayjs.extend(relativeTime);
+
+  beforeEach(() => jest.clearAllMocks());
 
   test('should render comment item', () => {
     const { getByTestId, queryByTestId } = renderWithProviders(<CommentItem {...mockProps}  />, {
@@ -51,5 +58,131 @@ describe('CommentItem component', () => {
     expect(getByTestId('comment-reply-button')).toBeDefined()
     expect(queryByTestId('comment-form-container')).not.toBeOnTheScreen();
     expect(queryByTestId('comment-replies')).not.toBeOnTheScreen();
+  })
+
+  test('should call upvote when button clicked', async () => {
+    const { getByTestId } = renderWithProviders(<CommentItem {...mockProps}  />, {
+      preloadedState: {
+        auth: {
+          profile: {id: '1', username: 'test'},
+          session: null,
+          isLoading: false,
+          isLoggedIn: true,
+          isJustLoggedIn: false,
+        }
+      }
+    })
+
+    const voteButton = getByTestId('comment-vote-button')
+
+    await userEvent.press(voteButton)
+    expect(mockUpvote).toHaveBeenCalledTimes(1)
+  })
+
+  test('should call unvote when button clicked', async () => {
+    const { getByTestId, rerender } = renderWithProviders(<CommentItem {...mockProps}  />, {
+      preloadedState: {
+        auth: {
+          profile: {id: '1', username: 'test'},
+          session: null,
+          isLoading: false,
+          isLoggedIn: true,
+          isJustLoggedIn: false,
+        }
+      }
+    })
+
+    const voteButton = getByTestId('comment-vote-button')
+
+    await user.press(voteButton)
+    expect(mockUpvote).toHaveBeenCalledTimes(1)
+
+    mockVotes = {
+      items: [{ id: 1, userId: '1', postId: 1 }],
+    }
+
+    rerender(<CommentItem {...mockProps}  />)
+
+    await user.press(voteButton)
+    expect(mockUnvote).toHaveBeenCalledTimes(1)
+  })
+
+  test('should show reply form when button is clicked', async () => {
+    const { getByTestId } = renderWithProviders(<CommentItem {...mockProps}  />, {
+      preloadedState: {
+        auth: {
+          profile: {id: '1', username: 'test'},
+          session: null,
+          isLoading: false,
+          isLoggedIn: true,
+          isJustLoggedIn: false,
+        }
+      }
+    })
+
+    const replyButton = getByTestId('comment-reply-button')
+    await user.press(replyButton)
+    expect(getByTestId('comment-form-container')).toBeDefined()
+  })
+
+  test('should hide reply form when cancel button is clicked', async () => {
+    const { getByTestId, queryByTestId } = renderWithProviders(<CommentItem {...mockProps}  />, {
+      preloadedState: {
+        auth: {
+          profile: {id: '1', username: 'test'},
+          session: null,
+          isLoading: false,
+          isLoggedIn: true,
+          isJustLoggedIn: false,
+        }
+      }
+    })
+
+    const replyButton = getByTestId('comment-reply-button')
+    await user.press(replyButton)
+    expect(getByTestId('comment-form-container')).toBeDefined()
+
+    const cancelButton = getByTestId('form-cancel-button')
+    await user.press(cancelButton)
+    expect(queryByTestId('comment-form-container')).toBeNull()
+  })
+
+  test('should show replies when button is clicked', async () => {
+    const { getByTestId } = renderWithProviders(<CommentItem {...mockProps}  />, {
+      preloadedState: {
+        auth: {
+          profile: {id: '1', username: 'test'},
+          session: null,
+          isLoading: false,
+          isLoggedIn: true,
+          isJustLoggedIn: false,
+        }
+      }
+    })
+
+    const repliesButton = getByTestId('comment-replies-button')
+    await user.press(repliesButton)
+    expect(getByTestId('comment-replies')).toBeDefined()
+  })
+
+  test('should hide replies when button is clicked', async () => {
+    const { getByTestId, queryByTestId } = renderWithProviders(<CommentItem {...mockProps}  />, {
+      preloadedState: {
+        auth: {
+          profile: {id: '1', username: 'test'},
+          session: null,
+          isLoading: false,
+          isLoggedIn: true,
+          isJustLoggedIn: false,
+        }
+      }
+    })
+
+    const repliesButton = getByTestId('comment-replies-button')
+    await user.press(repliesButton)
+    expect(getByTestId('comment-replies')).toBeDefined()
+
+    await user.press(repliesButton)
+    expect(queryByTestId('comment-replies')).toBeNull()
   })
 })
