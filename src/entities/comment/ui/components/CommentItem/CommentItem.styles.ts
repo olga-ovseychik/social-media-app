@@ -103,4 +103,7 @@ export const styles = (theme: ColorSchemeType, isVoted?: boolean) => StyleSheet.
   replyButtonText: {
     color: theme.accent,
   },
+  deletedComment: {
+    color: theme.accent,
+  }
 });

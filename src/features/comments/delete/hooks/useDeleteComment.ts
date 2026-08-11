@@ -9,7 +9,7 @@ export const useDeleteComment = () => {
   const session = useAppSelector(selectedSession)
 
   const deleteComment =  useMutation({
-    mutationFn: async (data: {commentId: number, deleted_at?: string}) =>
+    mutationFn: async (data: {commentId: number, postId: number, deleted_at?: string}) =>
       request(
         `${process.env.EXPO_PUBLIC_SUPABASE_URL}/graphql/v1`,
         DELETE_COMMENT_MUTATION,
@@ -20,7 +20,7 @@ export const useDeleteComment = () => {
         }
       ),
     onSuccess: (_, variables) => {
-      void queryClient.invalidateQueries({queryKey: [variables.commentId, 'comments']})
+      void queryClient.invalidateQueries({queryKey: [variables.postId, 'comments']})
     },
   });
 

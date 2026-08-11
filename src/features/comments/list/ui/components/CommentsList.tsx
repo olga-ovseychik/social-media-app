@@ -44,7 +44,7 @@ const CommentsList = ({ postId }: Props) => {
         label: 'Delete comment',
         icon: 'trash-bin',
         onPress: () => {
-          deleteComment.mutate({ commentId: id })
+          deleteComment.mutate({ commentId: id, postId })
           bottomSheetRef.current?.close();
         }
       }

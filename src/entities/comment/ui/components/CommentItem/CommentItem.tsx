@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Pressable, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, Pressable } from 'react-native';
 import { Image } from 'expo-image';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -52,60 +52,72 @@ const CommentItem = ({item, onPressSettings}: CommentItemProps) => {
         </Pressable>
       </View>
 
-      {item.content &&
-        (<Text
+      {(item.content && !item.deleted_at) && (
+        <Text
           style={styles(theme).content}
           testID='comment-content'
         >
           {item.content}
-        </Text>)
-      }
+        </Text>
+      )}
+
+      {item.deleted_at && (
+        <Text style={styles(theme).deletedComment}>Comment deleted by user</Text>
+      )}
 
       <View style={styles(theme).controlsContainer}>
-        <Pressable
-          style={styles(theme, isVoted !== undefined).buttonWrapper}
-          onPress={handleVote}
-          testID='comment-vote-button'
-        >
-          <View
-            style={styles(theme, isVoted !== undefined).button}
+        {!item.deleted_at && (
+          <Pressable
+            style={styles(theme, isVoted !== undefined).buttonWrapper}
+            onPress={handleVote}
+            testID='comment-vote-button'
           >
-            <Text style={styles(theme, isVoted !== undefined).buttonText}>
-              <Ionicons name='arrow-up-circle-outline' size={18} />
-            </Text>
+            <View
+              style={styles(theme, isVoted !== undefined).button}
+            >
+              <Text style={styles(theme, isVoted !== undefined).buttonText}>
+                <Ionicons name='arrow-up-circle-outline' size={18} />
+              </Text>
 
-            <Text style={styles(theme, isVoted !== undefined).count} testID='comment-vote-count'>
-              {votes.data?.items.length}
-            </Text>
+              <Text style={styles(theme, isVoted !== undefined).count} testID='comment-vote-count'>
+                {votes.data?.items.length}
+              </Text>
+            </View>
+          </Pressable>
+        )}
+
+        {(!item.deleted_at || Boolean(item.children?.length)) && (
+          <View style={styles(theme).buttonWrapper}>
+            <TouchableOpacity
+              style={styles(theme).button}
+              onPress={() => setShowReplies(prev => !prev)}
+              testID='comment-replies-button'
+            >
+              <Text style={styles(theme).buttonText}>
+                <Ionicons name='chatbubble-outline' color={theme.accent} size={18} />
+              </Text>
+
+              <Text style={styles(theme).count}>{item.children?.length}</Text>
+            </TouchableOpacity>
           </View>
-        </Pressable>
+        )}
 
-        <View style={styles(theme).buttonWrapper}>
+        {!item.deleted_at && (
           <TouchableOpacity
-            style={styles(theme).button}
-            onPress={() => setShowReplies(prev => !prev)}
-            testID='comment-replies-button'
+            style={styles(theme).replyButton}
+            onPress={() => setShowReplyForm(prev => !prev)}
+            testID='comment-reply-button'
           >
-            <Text style={styles(theme).buttonText}>
-              <Ionicons name='chatbubble-outline' color={theme.accent} size={18} />
-            </Text>
-
-            <Text style={styles(theme).count}>{item.children?.length}</Text>
+            <Ionicons
+              name='return-up-back-outline'
+              color={theme.accent}
+              size={16}
+            />
+            <Text style={styles(theme).replyButtonText}>Reply</Text>
           </TouchableOpacity>
-        </View>
-        <TouchableOpacity
-          style={styles(theme).replyButton}
-          onPress={() => setShowReplyForm(prev => !prev)}
-          testID='comment-reply-button'
-        >
-          <Ionicons
-            name='return-up-back-outline'
-            color={theme.accent}
-            size={16}
-          />
-          <Text style={styles(theme).replyButtonText}>Reply</Text>
-        </TouchableOpacity>
+        )}
       </View>
+
       {showReplyForm && (
         <AddCommentForm
           postId={item.postId}
