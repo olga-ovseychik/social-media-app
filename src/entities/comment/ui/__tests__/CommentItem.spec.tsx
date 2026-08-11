@@ -1,11 +1,12 @@
 import { userEvent } from "@testing-library/react-native";
-import { createComment } from "@/shared/test/util/createComment";
+import { createMockComment } from "@/shared/test/mocks/comment";
 import { CommentItemProps } from "@/entities/comment/model/types";
 import { renderWithProviders } from "@/shared/lib/renderWithProviders";
 import CommentItem from "@/entities/comment/ui/components/CommentItem/CommentItem";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Vote } from "@/entities/vote/model/vote.types";
+import { createMockAuthState } from "@/shared/test/mocks/auth";
 
 const mockUpvote = jest.fn();
 const mockUnvote = jest.fn();
@@ -19,13 +20,13 @@ jest.mock('@/entities/comment-votes/hooks/useGetCommentVotes', () => ({
 
 jest.mock('@/features/comment-votes/hooks/useCommentVotes', () => ({
   useCommentVotes: () => ({
-    upvote: { mutate:  mockUpvote },
+    upvote: { mutate: mockUpvote },
     unvote: { mutate: mockUnvote },
   })
 }))
 
 const mockProps: CommentItemProps = {
-  item: createComment(1),
+  item: createMockComment(1),
   onPressSettings: jest.fn(),
 }
 
@@ -37,15 +38,7 @@ describe('CommentItem component', () => {
 
   test('should render comment item', () => {
     const { getByTestId, queryByTestId } = renderWithProviders(<CommentItem {...mockProps}  />, {
-      preloadedState: {
-        auth: {
-          profile: {id: '1', username: 'test'},
-          session: null,
-          isLoading: false,
-          isLoggedIn: true,
-          isJustLoggedIn: false,
-        }
-      }
+      preloadedState: createMockAuthState()
     })
 
     expect(getByTestId('comment-user-avatar').props.source[0].uri).toContain(mockProps.item.user?.avatar_url)
@@ -62,15 +55,7 @@ describe('CommentItem component', () => {
 
   test('should call upvote when button clicked', async () => {
     const { getByTestId } = renderWithProviders(<CommentItem {...mockProps}  />, {
-      preloadedState: {
-        auth: {
-          profile: {id: '1', username: 'test'},
-          session: null,
-          isLoading: false,
-          isLoggedIn: true,
-          isJustLoggedIn: false,
-        }
-      }
+      preloadedState: createMockAuthState()
     })
 
     const voteButton = getByTestId('comment-vote-button')
@@ -81,15 +66,7 @@ describe('CommentItem component', () => {
 
   test('should call unvote when button clicked', async () => {
     const { getByTestId, rerender } = renderWithProviders(<CommentItem {...mockProps}  />, {
-      preloadedState: {
-        auth: {
-          profile: {id: '1', username: 'test'},
-          session: null,
-          isLoading: false,
-          isLoggedIn: true,
-          isJustLoggedIn: false,
-        }
-      }
+      preloadedState: createMockAuthState()
     })
 
     const voteButton = getByTestId('comment-vote-button')
@@ -109,15 +86,7 @@ describe('CommentItem component', () => {
 
   test('should show reply form when button is clicked', async () => {
     const { getByTestId } = renderWithProviders(<CommentItem {...mockProps}  />, {
-      preloadedState: {
-        auth: {
-          profile: {id: '1', username: 'test'},
-          session: null,
-          isLoading: false,
-          isLoggedIn: true,
-          isJustLoggedIn: false,
-        }
-      }
+      preloadedState: createMockAuthState()
     })
 
     const replyButton = getByTestId('comment-reply-button')
@@ -127,15 +96,7 @@ describe('CommentItem component', () => {
 
   test('should hide reply form when cancel button is clicked', async () => {
     const { getByTestId, queryByTestId } = renderWithProviders(<CommentItem {...mockProps}  />, {
-      preloadedState: {
-        auth: {
-          profile: {id: '1', username: 'test'},
-          session: null,
-          isLoading: false,
-          isLoggedIn: true,
-          isJustLoggedIn: false,
-        }
-      }
+      preloadedState: createMockAuthState()
     })
 
     const replyButton = getByTestId('comment-reply-button')
@@ -149,15 +110,7 @@ describe('CommentItem component', () => {
 
   test('should show replies when button is clicked', async () => {
     const { getByTestId } = renderWithProviders(<CommentItem {...mockProps}  />, {
-      preloadedState: {
-        auth: {
-          profile: {id: '1', username: 'test'},
-          session: null,
-          isLoading: false,
-          isLoggedIn: true,
-          isJustLoggedIn: false,
-        }
-      }
+      preloadedState: createMockAuthState()
     })
 
     const repliesButton = getByTestId('comment-replies-button')
@@ -167,15 +120,7 @@ describe('CommentItem component', () => {
 
   test('should hide replies when button is clicked', async () => {
     const { getByTestId, queryByTestId } = renderWithProviders(<CommentItem {...mockProps}  />, {
-      preloadedState: {
-        auth: {
-          profile: {id: '1', username: 'test'},
-          session: null,
-          isLoading: false,
-          isLoggedIn: true,
-          isJustLoggedIn: false,
-        }
-      }
+      preloadedState: createMockAuthState()
     })
 
     const repliesButton = getByTestId('comment-replies-button')

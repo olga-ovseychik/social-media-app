@@ -1,11 +1,11 @@
 import { buildCommentsTree } from "@/features/comments/list/lib/buildCommentsTree";
-import { createComment } from "@/shared/test/util/createComment";
+import { createMockComment } from "@/shared/test/mocks/comment";
 
 describe('buildCommentsTree util', () => {
   test('should return root comments when no replies exist', () => {
     const roots = buildCommentsTree([
-      createComment(1),
-      createComment(2)
+      createMockComment(1),
+      createMockComment(2)
     ]);
 
     expect(roots).toHaveLength(2);
@@ -15,8 +15,8 @@ describe('buildCommentsTree util', () => {
 
   test('should attach a reply to its parent comment', () => {
     const roots = buildCommentsTree([
-      createComment(1),
-      createComment(2, 1),
+      createMockComment(1),
+      createMockComment(2, 1),
     ]);
 
     expect(roots[0].children).toHaveLength(1);
@@ -26,9 +26,9 @@ describe('buildCommentsTree util', () => {
 
   test('should attach multiple replies to the same parent', () => {
     const roots = buildCommentsTree([
-      createComment(1),
-      createComment(2, 1),
-      createComment(3, 1),
+      createMockComment(1),
+      createMockComment(2, 1),
+      createMockComment(3, 1),
     ]);
 
     expect(roots).toHaveLength(1);
@@ -40,9 +40,9 @@ describe('buildCommentsTree util', () => {
 
   test('should build a nested comment tree', () => {
     const roots = buildCommentsTree([
-      createComment(1),
-      createComment(2, 1),
-      createComment(3, 2),
+      createMockComment(1),
+      createMockComment(2, 1),
+      createMockComment(3, 2),
     ]);
 
     const root = roots[0]
@@ -58,10 +58,10 @@ describe('buildCommentsTree util', () => {
 
   test('should build multiple root comment trees', () => {
     const roots = buildCommentsTree([
-      createComment(1),
-      createComment(2, 1),
-      createComment(3),
-      createComment(4, 3),
+      createMockComment(1),
+      createMockComment(2, 1),
+      createMockComment(3),
+      createMockComment(4, 3),
     ]);
 
     expect(roots).toHaveLength(2);
@@ -80,8 +80,8 @@ describe('buildCommentsTree util', () => {
 
   test('should ignore comment with non-existent parent', () => {
     const roots = buildCommentsTree([
-      createComment(1),
-      createComment(2, 100),
+      createMockComment(1),
+      createMockComment(2, 100),
     ]);
 
     expect(roots).toHaveLength(1);
