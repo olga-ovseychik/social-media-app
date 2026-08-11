@@ -34,6 +34,10 @@ jest.mock('@gorhom/bottom-sheet', () => {
   }
 })
 
+jest.mock('expo-router', () => ({
+  useFocusEffect: jest.fn((callback) => callback()),
+}));
+
 jest.mock("@/entities/post/hooks/usePosts", () => ({
   usePosts: jest.fn().mockReturnValue({
     getPosts: {

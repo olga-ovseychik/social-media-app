@@ -61,13 +61,14 @@ const CommentsList = ({ postId }: Props) => {
 
   if (comments.length === 0) {
     return (
-      <Text style={styles(theme).noDataText}>No comments yet. Be the first!</Text>
+      <Text style={styles(theme).noDataText} testID='no-content-text'>No comments yet. Be the first!</Text>
     )
   }
 
   return (
     <View style={styles(theme).container}>
       <FlatList
+        testID='flat-list'
         data={rootComments}
         renderItem={
           ({ item }) =>
